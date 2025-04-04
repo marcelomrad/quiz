@@ -124,3 +124,25 @@ def test_set_correct_choices_updates_choice_correctness():
     question.set_correct_choices([c2.id])
     assert not c1.is_correct
     assert c2.is_correct
+
+@pytest.fixture
+def question_with_choices():
+    question = Question(title="Pergunta Exemplo", points=5, max_selections=2)
+    question.add_choice("Opção A", False)
+    question.add_choice("Opção B", True)
+    question.add_choice("Opção C", False)
+    question.add_choice("Opção D", True)
+    return question
+
+def test_select_correct_choices_with_fixture(question_with_choices):
+    correct_ids = [choice.id for choice in question_with_choices.choices if choice.is_correct]
+    result = question_with_choices.select_choices(correct_ids)
+    assert set(result) == set(correct_ids)
+
+def test_remove_choice_by_id_with_fixture(question_with_choices):
+    initial_count = len(question_with_choices.choices)
+    choice_to_remove = question_with_choices.choices[0]
+    question_with_choices.remove_choice_by_id(choice_to_remove.id)
+    assert len(question_with_choices.choices) == initial_count - 1
+    remaining_ids = [choice.id for choice in question_with_choices.choices]
+    assert choice_to_remove.id not in remaining_ids
